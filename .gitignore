@@ -1,0 +1,10 @@
+# prod
+build/*
+**/*.o
+
+# testing
+testing/*
+
+# misc
+.DS_Store
+.vscode
