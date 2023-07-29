@@ -4,16 +4,18 @@
 #include "str.h"
 
 struct str str_new() {
+    char* data = malloc(sizeof(char) * 1);
+    data[0] = '\0';
     return (struct str) {
-        .capacity = 5,
+        .capacity = 1,
         .len = 0,
-        .data = malloc(sizeof(char) * 5)
+        .data = data,
     };
 }
 
 struct str str_from(char* cstr) {
     size_t len = strlen(cstr);
-    size_t capacity = strlen(cstr) + 5;
+    size_t capacity = len;
     char* data = malloc(sizeof(char) * capacity);
     memcpy(data, cstr, len);
     data[len] = '\0';
@@ -33,14 +35,14 @@ void str_free(struct str* self) {
 }
 
 void str_push(struct str* self, char character) {
-	if (self->len + 1 >= self->capacity) {
-		self->capacity += 5;
-		self->data = realloc(self->data, self->capacity);
-	}
+    if (self->len + 1 >= self->capacity) {
+        self->capacity += 5;
+        self->data = realloc(self->data, sizeof(char) * self->capacity);
+    }
 
-	self->data[self->len] = character;
-	self->data[self->len + 1] = '\0';
-	self->len++;
+    self->data[self->len] = character;
+    self->data[self->len + 1] = '\0';
+    self->len++;
 }
 
 char* cstr(struct str self) {
