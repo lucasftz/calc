@@ -53,9 +53,20 @@ struct str eval(struct vec tokens) {
 
             break;
         }
-        case SUBTRACT:
-            printf("switching over -\n");
+        case SUBTRACT: {
+            struct object* a = vec_pop(&evaluator.stack);
+            if (a == NULL) { fprintf(stderr, "Cannot use '+' on an empty stack\n"); exit(1); }
+            if (a->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
+            
+            struct object* b = vec_pop(&evaluator.stack);
+            if (b == NULL) { fprintf(stderr, "Cannot use '+' on an empty stack\n"); exit(1); }
+            if (b->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
+
+            struct object* difference = object_create(I32, (union object_value) { .i32 = a->value.i32 - b->value.i32 });
+            printf("difference = '%d'\n", difference->value.i32);
+            vec_push(&evaluator.stack, difference);
             break;
+        }
         }
 
     } while (next_token(&evaluator) != NULL);
