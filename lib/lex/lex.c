@@ -46,6 +46,7 @@ struct vec lex(struct str source) {
             }
 
             lexer_push_token(&lexer, token_new(INTEGER, number_str));
+            if (next != EOF) { lexer.column--; }
             break;
         }
         default:
