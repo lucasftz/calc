@@ -1,18 +1,20 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include "lib/str/str.h"
+
+#include "lib/lex/lex.h"
 
 int main() {
     char character;
 
     while (true) {
-        struct str* line = str_new();
+        struct str line = str_new();
+
         printf("> ");
         while ((character = fgetc(stdin)) != '\n') {
-            str_push(line, character);
+            str_push(&line, character);
         }
 
-        printf("'%s'\n", cstr(line));
+        struct vec tokens = lex(line);
     }
 
     return 0;

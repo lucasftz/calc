@@ -3,26 +3,26 @@
 #include <string.h>
 #include "str.h"
 
-struct str* str_new() {
-    struct str* str = malloc(sizeof(struct str));
-
-    str->capacity = 5;
-	str->len = 0;
-	str->data = malloc(sizeof(char) * str->capacity);
-
-	return str;
+struct str str_new() {
+    return (struct str) {
+        .capacity = 5,
+        .len = 0,
+        .data = malloc(sizeof(char) * 5)
+    };
 }
 
-struct str* str_from(char* cstr) {
-	struct str* str = malloc(sizeof(struct str));
+struct str str_from(char* cstr) {
+    size_t len = strlen(cstr);
+    size_t capacity = strlen(cstr) + 5;
+    char* data = malloc(sizeof(char) * capacity);
+    memcpy(data, cstr, len);
+    data[len] = '\0';
 
-	str->capacity = strlen(cstr) + 5;
-	str->len = strlen(cstr);
-	str->data = malloc(sizeof(char) * str->capacity);
-	memcpy(str->data, cstr, str->len);
-	str->data[str->len] = '\0';
-
-	return str;
+    return (struct str) {
+        .capacity = capacity,
+        .len = len,
+        .data = data,
+    };
 }
 
 void str_free(struct str* self) {
@@ -43,18 +43,18 @@ void str_push(struct str* self, char character) {
 	self->len++;
 }
 
-char* cstr(struct str* self) {
-	return self->data;
+char* cstr(struct str self) {
+	return self.data;
 }
 
 size_t str_len(struct str self) {
 	return self.len;
 }
 
-char* str_char_at(struct str* self, size_t index) {
-	if (index < 0 || index >= self->len) {
+char* str_char_at(struct str self, size_t index) {
+	if (index < 0 || index >= self.len) {
 		return NULL;
 	}
 
-	return &self->data[index];
+	return &self.data[index];
 }  
