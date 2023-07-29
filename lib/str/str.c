@@ -15,13 +15,12 @@ struct str str_new() {
 
 struct str str_from(char* cstr) {
     size_t len = strlen(cstr);
-    size_t capacity = len;
-    char* data = malloc(sizeof(char) * capacity);
+    char* data = malloc(sizeof(char) * (len + 1));
     memcpy(data, cstr, len);
     data[len] = '\0';
 
     return (struct str) {
-        .capacity = capacity,
+        .capacity = len,
         .len = len,
         .data = data,
     };
@@ -59,4 +58,20 @@ char* str_char_at(struct str self, size_t index) {
 	}
 
 	return &self.data[index];
-}  
+}
+
+void str_concat(struct str* self, struct str other) {
+    if (self->len + other.len > self->capacity) {
+        size_t new_capacity = self->len + other.len;
+        char* new_data = (char*)malloc(new_capacity + 1);
+        memcpy(new_data, self->data, self->len);
+        free(self->data);
+        self->data = new_data;
+        self->capacity = new_capacity;
+    }
+
+    memcpy(self->data + self->len, other.data, other.len);
+    self->len += other.len;
+    self->data[self->len] = '\0';
+}
+

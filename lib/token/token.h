@@ -5,6 +5,8 @@
 
 enum token_type {
     INTEGER,
+    ADD,
+    SUBTRACT,
 };
 
 struct token {

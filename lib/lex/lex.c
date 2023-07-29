@@ -18,18 +18,24 @@ struct lexer lexer_new(struct str source) {
     };
 }
 
-// FORWARD DECLARATIONS
+// forward declarations
 char next_char(struct lexer* lexer);
 char current_char(struct lexer lexer);
 void lexer_push_token(struct lexer* self, struct token token);
 
-// MAIN FUNCTION
+// main function
 struct vec lex(struct str source) {
     struct lexer lexer = lexer_new(source);
 
     while (next_char(&lexer) != EOF) {
         switch (current_char(lexer)) {
         case ' ': case '\n': case '\t': break;
+        case '+':
+            lexer_push_token(&lexer, token_new(ADD, str_from("+")));
+            break;
+        case '-':
+            lexer_push_token(&lexer, token_new(SUBTRACT, str_from("-")));
+            break;
         case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9': {
             struct str number_str = str_new();
             char next = current_char(lexer);
@@ -51,7 +57,7 @@ struct vec lex(struct str source) {
     return lexer.tokens;
 }
 
-// LEXER HELPERS
+// lexer helpers
 char next_char(struct lexer* lexer) {
     char* next_character = str_char_at(lexer->source, lexer->column);
     if (next_character == NULL) {
