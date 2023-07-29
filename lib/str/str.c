@@ -63,7 +63,7 @@ char* str_char_at(struct str self, size_t index) {
 void str_concat(struct str* self, struct str other) {
     if (self->len + other.len > self->capacity) {
         size_t new_capacity = self->len + other.len;
-        char* new_data = (char*)malloc(new_capacity + 1);
+        char* new_data = malloc(new_capacity + 1);
         memcpy(new_data, self->data, self->len);
         free(self->data);
         self->data = new_data;

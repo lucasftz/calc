@@ -21,7 +21,7 @@ void vec_push(struct vec* self, void* item) {
 }
 
 void* vec_access(struct vec self, size_t index) {
-    if (index > self.len) {
+    if (index >= self.len) {
         return NULL;
     }
 
