@@ -4,6 +4,6 @@
 #include "../token/token.h"
 #include "../vec/vec.h"
 
-struct str eval(struct vec tokens);
+struct vec eval(struct vec tokens);
 
 #endif

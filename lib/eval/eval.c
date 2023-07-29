@@ -25,8 +25,8 @@ struct token current_token(struct evaluator evaluator);
 int32_t to_i32(struct token integer_token);
 
 // main function
-struct str eval(struct vec tokens) {
-    if (tokens.len == 0) { return str_new(); }
+struct vec eval(struct vec tokens) {
+    if (tokens.len == 0) { return vec_new(0); }
     struct evaluator evaluator = evaluator_new(tokens);
 
     do {
@@ -35,7 +35,6 @@ struct str eval(struct vec tokens) {
             int32_t i32 = to_i32(current_token(evaluator));
             struct object* int_object = object_create(I32, (union object_value) { .i32 = i32 });
             vec_push(&evaluator.stack, int_object);
-            printf("pushed '%d' onto stack\n", i32);
             break;
         }
         case ADD: {
@@ -48,7 +47,6 @@ struct str eval(struct vec tokens) {
             if (b->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
 
             struct object* sum = object_create(I32, (union object_value) { .i32 = a->value.i32 + b->value.i32 });
-            printf("sum = '%d'\n", sum->value.i32);
             vec_push(&evaluator.stack, sum);
 
             break;
@@ -63,7 +61,6 @@ struct str eval(struct vec tokens) {
             if (b->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
 
             struct object* difference = object_create(I32, (union object_value) { .i32 = a->value.i32 - b->value.i32 });
-            printf("difference = '%d'\n", difference->value.i32);
             vec_push(&evaluator.stack, difference);
             break;
         }
@@ -71,7 +68,7 @@ struct str eval(struct vec tokens) {
 
     } while (next_token(&evaluator) != NULL);
 
-    return str_new();
+    return evaluator.stack;
 }
 
 struct token* next_token(struct evaluator* evaluator) {
