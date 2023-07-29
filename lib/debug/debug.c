@@ -40,6 +40,7 @@ struct str token_type(struct token token) {
     case INTEGER: return str_from("INTEGER");
     case ADD: return str_from("ADD");
     case SUBTRACT: return str_from("SUBTRACT");
+    case PRINT: return str_from("PRINT");
     }
 }
 

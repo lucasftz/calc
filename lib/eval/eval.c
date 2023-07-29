@@ -25,6 +25,7 @@ struct evaluator evaluator_new(struct vec tokens, struct vec* stack) {
 struct token* next_token(struct evaluator* evaluator);
 struct token current_token(struct evaluator evaluator);
 int32_t to_i32(struct token integer_token);
+struct str i32_to_str(int32_t i32);
 
 // main function
 size_t eval(struct vec tokens, struct vec* stack) {
@@ -70,8 +71,16 @@ size_t eval(struct vec tokens, struct vec* stack) {
 
             break;
         }
-        }
+        case PRINT: {
+            struct object* object = vec_pop(evaluator.stack);
+            if (object == NULL) { fprintf(stderr, "Cannot print on an empty stack\n"); break; }
+            if (evaluator.return_count > 0) { evaluator.return_count--; }
 
+            switch (object->tag) {
+            case I32: printf("%s\n", cstr(i32_to_str(object->value.i32))); break;
+            }
+            break;
+        }}
     } while (next_token(&evaluator) != NULL);
 
     return evaluator.return_count;
@@ -100,5 +109,11 @@ int32_t to_i32(struct token integer_token) {
     }
 
     return num;
+}
+
+struct str i32_to_str(int32_t i32) {
+    char buffer[20];
+    sprintf(buffer, "%d", i32);
+    return str_from(buffer);
 }
 

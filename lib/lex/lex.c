@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdbool.h>
 #include "lex.h"
 #include "../token/token.h"
 
@@ -22,6 +24,7 @@ struct lexer lexer_new(struct str source) {
 char next_char(struct lexer* lexer);
 char current_char(struct lexer lexer);
 void lexer_push_token(struct lexer* self, struct token token);
+bool is_iden(char character);
 
 // main function
 struct vec lex(struct str source) {
@@ -49,10 +52,21 @@ struct vec lex(struct str source) {
             if (next != EOF) { lexer.column--; }
             break;
         }
-        default:
-            printf("TODO: handle char '%c'\n", current_char(lexer));
+        default: {
+            struct str identifier_str = str_new();
+            char next = current_char(lexer);
+
+            while (next != EOF && is_iden(next)) {
+                str_push(&identifier_str, next);
+                next = next_char(&lexer);
+            }
+
+            if (0 == strcmp(cstr(identifier_str), "print")) {
+                lexer_push_token(&lexer, token_new(PRINT, identifier_str));
+            }
+            if (next != EOF) { lexer.column--; }
             break;
-        }
+        }}
     }
 
     return lexer.tokens;
@@ -80,5 +94,9 @@ void lexer_push_token(struct lexer* self, struct token token) {
     tkn->value = token.value;
 
     vec_push(&self->tokens, tkn);
+}
+
+bool is_iden(char character) {
+    return (character >= 'a' && character <= 'z') || (character >= 'A' && character <= 'Z') || (character == '_');;
 }
 
