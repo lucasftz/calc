@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -7,6 +8,7 @@
 #include "lib/object/object.h"
 
 int main() {
+    struct vec stack = vec_new(sizeof(struct object));
     char character;
 
     while (true) {
@@ -18,13 +20,17 @@ int main() {
         }
 
         struct vec tokens = lex(line);
-        struct vec stack = eval(tokens);
-        struct object* return_object = vec_pop(&stack);
+        size_t return_count = eval(tokens, &stack);
 
-        if (return_object != NULL) {
-            switch (return_object->tag) {
-            case I32: printf("%d\n", return_object->value.i32); break;
-            }
+        if (return_count <= 0) { continue; }
+        struct object* return_object = vec_access(stack, stack.len - 1);
+        if (return_object == NULL) {
+            fprintf(stderr, "something went wrong\n");
+            exit(1);
+        }
+
+        switch (return_object->tag) {
+        case I32: printf("%d\n", return_object->value.i32); break;
         }
     }
 

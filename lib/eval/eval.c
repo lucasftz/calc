@@ -7,14 +7,16 @@
 
 struct evaluator {
     struct vec tokens;
-    struct vec stack;
+    struct vec* stack;
+    size_t return_count;
     size_t index;
 };
 
-struct evaluator evaluator_new(struct vec tokens) {
+struct evaluator evaluator_new(struct vec tokens, struct vec* stack) {
     return (struct evaluator) {
         .tokens = tokens,
-        .stack = vec_new(sizeof(struct object)),
+        .stack = stack,
+        .return_count = 0,
         .index = 0,
     };
 }
@@ -25,50 +27,54 @@ struct token current_token(struct evaluator evaluator);
 int32_t to_i32(struct token integer_token);
 
 // main function
-struct vec eval(struct vec tokens) {
-    if (tokens.len == 0) { return vec_new(0); }
-    struct evaluator evaluator = evaluator_new(tokens);
+size_t eval(struct vec tokens, struct vec* stack) {
+    if (tokens.len == 0) { return 0; }
+    struct evaluator evaluator = evaluator_new(tokens, stack);
 
     do {
         switch (current_token(evaluator).type) {
         case INTEGER: {
             int32_t i32 = to_i32(current_token(evaluator));
             struct object* int_object = object_create(I32, (union object_value) { .i32 = i32 });
-            vec_push(&evaluator.stack, int_object);
+            vec_push(evaluator.stack, int_object);
+            evaluator.return_count++;
             break;
         }
         case ADD: {
-            struct object* a = vec_pop(&evaluator.stack);
+            struct object* a = vec_pop(evaluator.stack);
             if (a == NULL) { fprintf(stderr, "Cannot use '+' on an empty stack\n"); exit(1); }
             if (a->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
             
-            struct object* b = vec_pop(&evaluator.stack);
+            struct object* b = vec_pop(evaluator.stack);
             if (b == NULL) { fprintf(stderr, "Cannot use '+' on an empty stack\n"); exit(1); }
             if (b->tag != I32) { fprintf(stderr, "'+' expects an i32 value\n"); exit(1); }
 
             struct object* sum = object_create(I32, (union object_value) { .i32 = a->value.i32 + b->value.i32 });
-            vec_push(&evaluator.stack, sum);
+            vec_push(evaluator.stack, sum);
+            evaluator.return_count--;
 
             break;
         }
         case SUBTRACT: {
-            struct object* a = vec_pop(&evaluator.stack);
-            if (a == NULL) { fprintf(stderr, "Cannot use '-' on an empty stack\n"); exit(1); }
+            struct object* a = vec_pop(evaluator.stack);
+            if (a == NULL) { fprintf(stderr, "Cannot use '-' on an empty stack\n"); exit(1);}
             if (a->tag != I32) { fprintf(stderr, "'-' expects an i32 value\n"); exit(1); }
             
-            struct object* b = vec_pop(&evaluator.stack);
+            struct object* b = vec_pop(evaluator.stack);
             if (b == NULL) { fprintf(stderr, "Cannot use '-' on an empty stack\n"); exit(1); }
             if (b->tag != I32) { fprintf(stderr, "'-' expects an i32 value\n"); exit(1); }
 
             struct object* difference = object_create(I32, (union object_value) { .i32 = a->value.i32 - b->value.i32 });
-            vec_push(&evaluator.stack, difference);
+            vec_push(evaluator.stack, difference);
+            evaluator.return_count--;
+
             break;
         }
         }
 
     } while (next_token(&evaluator) != NULL);
 
-    return evaluator.stack;
+    return evaluator.return_count;
 }
 
 struct token* next_token(struct evaluator* evaluator) {

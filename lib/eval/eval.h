@@ -4,6 +4,6 @@
 #include "../token/token.h"
 #include "../vec/vec.h"
 
-struct vec eval(struct vec tokens);
+size_t eval(struct vec tokens, struct vec* stack);
 
 #endif
